@@ -1,58 +1,133 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
-  </div>
+	<div class="container mt-5">
+		<div class="row justify-content-center">
+			<div class="col-md-8">
+				<div class="card">
+					<div class="card-header">
+						<h4>Form validation with Vue</h4>
+					</div>
+					<div class="card-body">
+						<form @submit.prevent="validate">
+							<div class="form-group">
+								<input type="text" class="form-control" v-bind:class="{ 'is-invalid': nameError }" id="name" placeholder="Your name" v-model="name">
+								<div class="invalid-feedback" id="feedback-1" v-if="errors[0]">
+									{{ errors[0].message }}
+								</div>
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control" v-bind:class="{ 'is-invalid': emailError }" id="email" placeholder="Your email" v-model="email">
+								<div class="invalid-feedback" id="feedback-2" v-if="errors[1]">
+									{{ errors[1].message }}
+								</div>
+							</div>
+							<div class="form-group">
+								<textarea class="form-control" v-bind:class="{ 'is-invalid': commentError }" id="comment" placeholder="Your comment" v-model="comment"></textarea>
+								<div class="invalid-feedback" id="feedback-3" v-if="errors[2]">
+									{{ errors[2].message }}
+								</div>
+							</div>
+
+              <div class="form-group">
+                <b-form-file
+                  v-model="file"
+                  placeholder="Selecciona el archivo..."
+                  drop-placeholder="Drop file here..."
+                  class="form-control"
+                  accept=".zip,.rar,.7zip"
+                  v-bind:class="{ 'is-invalid': fileError }"
+                  id="file"
+                >
+
+                <div class="invalid-feedback" id="feedback-3" v-if="errors[3]">
+									{{ errors[3].message }}
+								</div>
+                
+                </b-form-file>
+              </div>
+							<button class="btn btn-primary" type="submit">Validate</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
-</script>
+	export default {
+		name: 'home',
+		data() {
+			return {
+				name: '',
+				email: '',
+				comment: '',
+        file: '',
+				nameError: false,
+				emailError: false,
+				commentError: false,
+        fileError: false,
+				errors: []
+			}
+		},
+		methods: {
+			validate() {
+				this.errors = [];
+				var len = this.name.length;
+				if (len < 5 || len > 20) {
+					this.nameError = true;
+					this.errors.push({
+						'message': 'Name must be between 5 to 20 characters long.'
+					});
+				} else {
+					document.getElementById('name').className = "form-control is-valid";
+					this.errors.push({
+						'message': 'Validated.'
+					});
+					document.getElementById('feedback-1').className = "valid-feedback";
+				}
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+        // file validate
+        if(this.file === '') {
+          this.fileError = true;
+          this.errors.push({
+            'message': "Por favor selecciona un archivo."
+          });
+        } else {
+          document.getElementById('file').className = 'form-control is-valid';
+          this.errors.push({
+            'message': 'Validar.'
+          })
+        }
+
+				// email validate
+				if(this.email.length < 10 || this.email.search('@') == -1) {
+					this.emailError = true;
+					this.errors.push({
+						'message': 'Please provide a valid email address.'
+					});
+				} else {
+					document.getElementById('email').className = "form-control is-valid";
+					this.errors.push({
+						'message': 'Validated.'
+					});
+					document.getElementById('feedback-2').className = "valid-feedback";
+				}
+				// comment validate
+				var regex = /^[a-zA-Z0-9 .-]+$/;
+				if(this.comment.length < 20 || this.comment.match(regex) == null) {
+					this.commentError = true;
+					this.errors.push({
+						'field': 'comment',
+						'message': 'Comment must be of 20 characters or more and use of special characters except . and - are restricted'
+					});
+				} else {
+					document.getElementById('comment').className = "form-control is-valid";
+					this.errors.push({
+						'message': 'Validated.'
+					});
+					document.getElementById('feedback-3').className = "valid-feedback";
+				}
+			}
+		}
+	}
+</script>
